@@ -1,0 +1,106 @@
+### **🚀 Extracting Learned Patterns from Your Trained Transformer Model**  
+
+Now that we’ve looked **inside the model’s weights**, let’s extract **actual learned patterns** to see **what your model "knows."**  
+
+This means analyzing:  
+✔ **Word similarity** (Are `"dog"` and `"puppy"` close in vector space?)  
+✔ **Attention patterns** (Which words get the most attention in a sentence?)  
+✔ **Neuron activations** (Which parts of the model respond most strongly to different inputs?)  
+
+---
+
+# **📌 Step 1: Load Your Model’s Embedding Matrix**
+💡 **First, let’s extract the raw word embeddings from the model.**  
+
+Each token **has a learned vector representation** in the embedding matrix.
+
+```python
+import torch
+
+# ✅ Load trained model weights
+model_weights = torch.load("minigpt_final.pth")
+
+# ✅ Extract token embeddings
+token_embeddings = model_weights['token_embedding.weight']
+
+# ✅ Print the shape of the embedding matrix
+print("Embedding Matrix Shape:", token_embeddings.shape)  # Should be (VOCAB_SIZE, D_MODEL)
+
+# ✅ Print the first 5 token embeddings
+print("Sample embeddings:", token_embeddings[:5])
+```
+✔ This will output something like:
+```
+Embedding Matrix Shape: torch.Size([50000, 1024])
+Sample embeddings: 
+tensor([
+    [ 0.0245, -0.0312,  0.0158, ..., -0.0074],
+    [ 0.0456,  0.0123, -0.0876, ...,  0.0012],
+    [-0.0201,  0.0421,  0.0056, ..., -0.0234],
+    ...
+])
+```
+💡 **Each row represents a token’s learned meaning in 1024-dimensional space.**
+
+---
+
+# **📌 Step 2: Find Similar Words in the Model’s Embedding Space**
+💡 **Now, let’s check if the model has learned real-world word relationships.**  
+We’ll compare **word embeddings** to find **similar words**.
+
+```python
+import torch
+import numpy as np
+
+# ✅ Function to compute cosine similarity between word embeddings
+def cosine_similarity(vec1, vec2):
+    return torch.dot(vec1, vec2) / (torch.norm(vec1) * torch.norm(vec2))
+
+# ✅ Compare two words
+word_1_id = 100  # Example token ID for "dog"
+word_2_id = 342  # Example token ID for "puppy"
+
+similarity = cosine_similarity(token_embeddings[word_1_id], token_embeddings[word_2_id])
+print(f"Cosine Similarity: {similarity.item()}")
+```
+✔ If the model **trained well**, `"dog"` and `"puppy"` should have a high similarity score (closer to `1.0`).  
+
+---
+
+# **📌 Step 3: Analyze Attention Patterns**
+💡 **Next, let’s check which words a model focuses on when processing a sentence.**  
+
+```python
+# ✅ Extract self-attention weights from the first layer
+attention_weights = model_weights['encoder_layers.0.self_attn.q_proj_weight']
+
+# ✅ Print first 5 attention weights
+print("Sample attention weights:", attention_weights[:5, :5])
+```
+✔ This will show **how words interact** with each other in the first Transformer layer.
+
+---
+
+# **📌 Step 4: Find Which Neurons Activate Most for Specific Words**
+💡 **Let’s see which neurons (dimensions in 1024-space) respond most strongly to a word like `"happy"`**.
+
+```python
+# ✅ Extract token embedding for a specific word
+word_id = 567  # Example token ID for "happy"
+word_vector = token_embeddings[word_id]
+
+# ✅ Print the top 5 highest values in the vector (most active neurons)
+top_activations = torch.topk(word_vector, 5)
+print(f"Top activations for 'happy': {top_activations}")
+```
+✔ This tells us **which parts of the model "light up"** when the word `"happy"` is processed.
+
+---
+
+# **🚀 Summary: What Your Model Has Learned**
+✔ **Your model stores every token as a 1024-dimension vector.**  
+✔ **Words with similar meanings are close together in vector space.**  
+✔ **Self-attention weights show which words influence each other the most.**  
+✔ **Some neurons specialize in different types of words (e.g., emotions, nouns, verbs).**  
+
+🚀 **You just extracted real knowledge from your model! Want to visualize embeddings with PCA?** 🔥🔥🔥

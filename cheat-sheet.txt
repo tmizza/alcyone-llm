@@ -1,0 +1,112 @@
+### **🚀 LLM Experimentation Cheat Sheet**  
+🔥 **You now have a deep understanding of how LLMs work from scratch!**  
+This **cheat sheet** will serve as a quick reference for **concepts, parameters, settings, configurations, and experimental ideas**.  
+
+---
+
+# **📌 Core Concepts of Large Language Models (LLMs)**  
+
+### **🧠 What Is an LLM?**
+- A **neural network** trained on large text data to generate text, complete prompts, and perform language tasks.
+- Uses **transformer architecture**, which enables parallel processing and long-range context understanding.
+- Based on **self-attention mechanisms** that dynamically weigh word relationships.
+
+---
+
+# **📌 Core Transformer Parameters & Hyperparameters**
+| **Parameter** | **Definition** | **Typical Values** |
+|--------------|---------------|--------------------|
+| **VOCAB_SIZE** | Number of unique tokens in the model's vocabulary. | `20K - 100K` |
+| **D_MODEL** | Dimensionality of token embeddings & hidden layers. | `512 - 4096` |
+| **N_LAYERS** | Number of stacked transformer layers. | `6 - 96` |
+| **N_HEADS** | Number of self-attention heads per layer. | `8 - 32` |
+| **D_FF** | Size of feedforward network inside each layer (`4 * D_MODEL`). | `2048 - 16K` |
+| **MAX_LEN** | Maximum token sequence length the model can handle. | `256 - 4096` |
+| **BATCH_SIZE** | Number of sequences processed per training step. | `16 - 512` |
+| **LR (Learning Rate)** | Controls weight adjustments during training. | `1e-3 - 5e-5` |
+| **NUM_EPOCHS** | Number of complete training cycles over the dataset. | `10 - 100` |
+| **SAVE_INTERVAL** | How often model checkpoints are saved. | Every `5` epochs |
+
+---
+
+# **📌 Key Components of a Transformer Model**
+| **Component** | **Purpose** | **Key Equations** |
+|--------------|------------|------------------|
+| **Token Embeddings** | Converts token IDs into dense numerical vectors. | `X_input = Token_IDs × Embedding Matrix` |
+| **Positional Encoding** | Adds order information to token embeddings. | `PE(pos, 2i) = sin(pos / 10000^(2i/D_MODEL))` |
+| **Self-Attention** | Determines how words influence each other. | `Attention(Q, K, V) = softmax(QK^T / sqrt(D_MODEL)) V` |
+| **Multi-Head Attention** | Allows the model to process different contextual relationships in parallel. | `Concat(head_1, head_2, ..., head_N) × W_O` |
+| **Feedforward Network (FFN)** | Applies additional transformations to each token. | `FFN(X) = ReLU(XW_1 + b_1) W_2 + b_2` |
+| **Layer Normalization** | Stabilizes activations across layers. | `X_normalized = (X - mean) / std_dev` |
+| **Final Projection Layer** | Maps final hidden states back to vocabulary for token prediction. | `Logits = X × W_vocab` |
+
+---
+
+# **📌 LLM Training & Inference Workflow**
+### **🛠️ Training Process**
+1️⃣ **Tokenization**: Converts raw text into token IDs.  
+2️⃣ **Embedding Lookup**: Maps token IDs to dense vectors.  
+3️⃣ **Self-Attention**: Updates tokens based on contextual relationships.  
+4️⃣ **Multi-Layer Processing**: Tokens pass through multiple layers.  
+5️⃣ **Final Prediction**: Outputs logits, applies softmax to determine next token.  
+6️⃣ **Loss Calculation**: Compares predictions to actual text, updates weights.  
+7️⃣ **Gradient Descent**: Adjusts model weights using `loss.backward()`.  
+8️⃣ **Repeat**: Process repeats until the model is fully trained.  
+
+### **🛠️ Inference (Text Generation)**
+1️⃣ **Input Text**: Tokenized & passed to model.  
+2️⃣ **Model Processes Tokens**: Runs self-attention & transformations.  
+3️⃣ **Softmax Applied**: Converts logits to probabilities.  
+4️⃣ **Next Token Selected**: Based on highest probability or sampling techniques.  
+5️⃣ **Loop Until Stop Condition**: Continues generating until `max_length` or stop token (`</s>`) is reached.  
+
+---
+
+# **📌 Sampling Strategies for Better Generation**
+| **Sampling Method** | **How It Works** | **When to Use** |
+|--------------------|----------------|----------------|
+| **Greedy Decoding** | Always picks the highest probability token. | Simple tasks, but repetitive outputs. |
+| **Top-k Sampling** | Limits sampling to `k` highest probability tokens. | More diversity, but controlled randomness. |
+| **Top-p (Nucleus) Sampling** | Picks tokens from a probability mass threshold (e.g., top `95%`). | Produces coherent, controlled outputs. |
+| **Temperature Scaling** | Adjusts probability distribution (`T=0.7` → more focused, `T=1.5` → more random). | Increases/decreases creativity. |
+
+---
+
+# **📌 Debugging & Optimizing Training**
+| **Issue** | **Cause** | **Fix** |
+|----------|----------|--------|
+| **CUDA Out of Memory (OOM)** | Batch size too high, model too large. | Reduce `BATCH_SIZE`, enable `torch.cuda.empty_cache()`. |
+| **Diverging Loss (Loss Explodes)** | Learning rate too high. | Reduce `LR`, use learning rate decay. |
+| **Slow Training** | Too many layers, inefficient hardware. | Use `fp16` (mixed precision), enable `gradient_checkpointing()`. |
+| **Overfitting** | Too few training samples. | Increase dataset, add dropout regularization. |
+
+---
+
+# **📌 Experimentation Ideas**
+### **🛠️ Customization Ideas for Your LLM**
+- **Train on Custom Data**: Use domain-specific datasets (e.g., legal, medical, finance).  
+- **Adjust Model Depth**: Experiment with `N_LAYERS` (shallow models learn quickly, deep ones generalize better).  
+- **Expand Context Length**: Increase `MAX_LEN` for long-form text generation.  
+- **Optimize Sampling**: Test different `top-k`, `top-p`, and `temperature` settings.  
+- **Fine-Tune on Pretrained Models**: Instead of training from scratch, adapt an existing model to your dataset.  
+
+---
+
+# **📌 Example LLM Experiment Configurations**
+| **Model Type** | **VOCAB_SIZE** | **D_MODEL** | **N_LAYERS** | **N_HEADS** | **MAX_LEN** | **BATCH_SIZE** |
+|--------------|-------------|---------|---------|--------|---------|------------|
+| **Small (Fast)** | `20K` | `512` | `6` | `8` | `128` | `32` |
+| **Medium (Balanced)** | `50K` | `1024` | `12` | `16` | `256` | `64` |
+| **Large (Powerful)** | `100K` | `2048` | `24` | `32` | `512` | `128` |
+
+🚀 **Adjust hyperparameters based on your available compute power and dataset size!**  
+
+---
+
+### **🔥 Final Thoughts: You’re Ready to Experiment with LLMs**
+✔ **You understand the internals of transformers, self-attention, embeddings, and training.**  
+✔ **You’ve seen how trained models store knowledge as weight matrices.**  
+✔ **You know how to visualize embeddings, optimize sampling, and scale models.**  
+✔ **Now you can tweak hyperparameters and experiment with different configurations.**  
+
+🚀 **You’re ready to build, train, and optimize your own LLMs! Where do you want to go next? Fine-tuning, scaling, or something more experimental?** 🔥🔥🔥
